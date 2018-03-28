@@ -1,0 +1,28 @@
+{
+  "name": "desarrolla2/download-bundle",
+  "description": "This bundle provides download utilities for symfony2",
+  "type": "symfony-bundle",
+  "autoload": {
+    "psr-4": {
+      "Desarrolla2\\DownloadBundle\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=7.0",
+    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.5",
+    "mmoreram/php-formatter": "^1.1",
+    "squizlabs/php_codesniffer": "^3.0",
+    "phpmd/phpmd": "^2.6",
+    "escapestudios/symfony2-coding-standard": "3.x-dev"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Daniel González Cerviño",
+      "email": "daniel@desarrolla2.com"
+    }
+  ]
+}

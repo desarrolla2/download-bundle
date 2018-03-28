@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="desarrolla2 download bundle" basedir=".">
+
+    <target name="cs" description="">
+        <exec executable="./vendor/bin/php-cs-fixer">
+            <arg line="fix src"/>
+        </exec>
+        <exec executable="./vendor/bin/php-formatter">
+            <arg line="formatter:header:fix src"/>
+        </exec>
+        <exec executable="./vendor/bin/php-formatter">
+            <arg line="formatter:use:sort src"/>
+        </exec>
+    </target>
+</project>
