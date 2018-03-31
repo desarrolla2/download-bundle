@@ -7,7 +7,7 @@ Download database and directories from production to local through ssh connectio
 Download the Bundle.
 
 ```bash 
-composer require --dev "desarrolla2/mail-download-bundle"
+composer require --dev "desarrolla2/download-bundle"
 ```
 
 Enable the Bundle
