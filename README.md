@@ -7,7 +7,7 @@ Download database and directories from production to local through ssh connectio
 Download the Bundle.
 
 ```bash 
-composer require "desarrolla2/mail-download-bundle"
+composer require --dev "desarrolla2/mail-download-bundle"
 ```
 
 Enable the Bundle
@@ -45,7 +45,7 @@ download:
         remote:
             host: '127.0.0.1'
             name: 'production_database_name'
-            user: 'production_database_name'
+            user: 'production_database_user'
             password: 'production_database_password'
             port: 3308
 
@@ -86,7 +86,7 @@ php bin/console downloader:download
 Maybe you want to load a previously downloaded database.
 
 ```bash
-php bin/console downloader:download
+php bin/console downloader:load
 ```
 
 ## Contact
