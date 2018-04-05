@@ -1,6 +1,11 @@
-# DownloadBundle
+# Download Bundle
 
-Download database and directories from production to local through ssh connection
+This bundle allows you to download a database and folders associated with the project from remote host to local machine. 
+It is the easiest and easiest way to have the same production data in your development environment.
+
+The bundle works using ssh connections so it is necessary that you have configured to connect through a public key.
+
+**Disclaimer**: This bundle works only for environments with linux.  
 
 ## Installation
 
@@ -32,13 +37,16 @@ class AppKernel extends Kernel
 }
 ```
 
-## Usage
+## Configuration
 
 You need put something like this in your config_dev.yml
 
 ```yml
 download:
-    databases:
+    user: 'deploy_user'
+    host: 'production_url_or_ip'
+
+    database:
         # local directory to save databases
         directory: '%kernel.root_dir%/../var/data/databases'
 
@@ -46,8 +54,7 @@ download:
             host: '127.0.0.1'
             name: 'production_database_name'
             user: 'production_database_user'
-            password: 'production_database_password'
-            port: 3308
+            password: 'production_database_password'           
 
         local:
             host: '%database_host%'
@@ -56,38 +63,51 @@ download:
             password: '%database_password%'
 
     # some directories that you want download.
+
     directories:
         web_uploads:
-            remote: 'root@air.interlang.es:/var/www/air.interlang.es/shared/web/uploads'
+            remote: '/var/www/air.interlang.es/shared/web/uploads'
             local: '%kernel.root_dir%/../web'
+	    # you can exclude some directories from here
+	    exclude:
+                - 'cache'
 
         var_data:
-            remote: 'root@air.interlang.es:/var/www/air.interlang.es/shared/var/data'
+            remote: '/var/www/air.interlang.es/shared/var/data'
             local: '%kernel.root_dir%/../var'
             
 ```
 
-## Download
+## Usage
 
-First you need to generate a ssh tunnel to download remote database. You can create one as follow.
+### Download
 
-```bash
-ssh -N -L 3308:127.0.0.1:3306 root@remote_host_ip_here &
-```
-
-Now you can download your database and directories,
+When you execute this command, both the database and the directories are downloaded from the remote environment.
 
 ```bash
 php bin/console downloader:download
 ```
 
-## Load
+This is what you will see in your command line.
 
-Maybe you want to load a previously downloaded database.
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_1.png)
+
+### Load
+
+Maybe you want to put your local database in a previous state. This bundle keeps a copy of every download you have made, 
+so going back to one of these states is very easy.
 
 ```bash
 php bin/console downloader:load
 ```
+
+Select from available dates.
+
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_2.png)
+
+This is what you will see in your command line.
+
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_3.png)
 
 ## Contact
 

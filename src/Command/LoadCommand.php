@@ -90,13 +90,7 @@ class LoadCommand extends AbstractCommand
         $selected = $helper->ask($input, $output, $question);
         foreach ($files as $file) {
             if ($file['formatted'] == $selected) {
-                $this->local(
-                    sprintf(
-                        'cp %s %s',
-                        $file['path'],
-                        $handler->getFileName()
-                    )
-                );
+                $handler->local(sprintf('cp %s %s', $file['path'], $handler->getFileName()));
 
                 return;
             }
