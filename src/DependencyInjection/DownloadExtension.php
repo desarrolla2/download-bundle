@@ -33,9 +33,11 @@ class DownloadExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('desarrolla2_download.databases.directory', $config['databases']['directory']);
-        $container->setParameter('desarrolla2_download.databases.remote', $config['databases']['remote']);
-        $container->setParameter('desarrolla2_download.databases.local', $config['databases']['local']);
+        $container->setParameter('desarrolla2_download.user', $config['user']);
+        $container->setParameter('desarrolla2_download.host', $config['host']);
+        $container->setParameter('desarrolla2_download.database.directory', $config['database']['directory']);
+        $container->setParameter('desarrolla2_download.database.remote', $config['database']['remote']);
+        $container->setParameter('desarrolla2_download.database.local', $config['database']['local']);
         $container->setParameter('desarrolla2_download.directories', $config['directories']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));

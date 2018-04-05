@@ -27,13 +27,14 @@ class DatabaseHandler extends AbstractHandler
     private $directory;
 
     /**
-     * DatabaseHandler constructor.
      * @param Database $remote
      * @param Database $local
      * @param string   $directory
      */
-    public function __construct(Database $remote, Database $local, string $directory)
+    public function __construct(string $user, string $host, Database $remote, Database $local, string $directory)
     {
+        $this->user = $user;
+        $this->host = $host;
         $this->remote = $remote;
         $this->local = $local;
         $this->directory = $directory;
@@ -43,30 +44,27 @@ class DatabaseHandler extends AbstractHandler
     {
         $databaseFile = $this->getFileName();
         $databaseFileWithTime = $this->getFileNameWithDateTime();
-
-        $this->cmd(
+        $temporalFile = $this->getTemporalFileName();
+        $this->remote(
             sprintf(
-                'mysqldump -h %s -u %s -p\'%s\' --port %s --opt --databases %s > %s',
+                'mysqldump -h%s -u%s -p\'%s\' --port %s --single-transaction --create-options --databases %s > %s',
                 $this->remote->getHost(),
                 $this->remote->getUser(),
                 $this->remote->getPassword(),
                 $this->remote->getPort(),
                 $this->remote->getName(),
-                $databaseFileWithTime
+                $temporalFile
             )
         );
-        $this->cmd(
-            sprintf(
-                'cp %s %s',
-                $databaseFileWithTime,
-                $databaseFile
-            )
-        );
+
+        $this->local(sprintf('scp %s@%s:%s %s', $this->user, $this->host, $temporalFile, $databaseFileWithTime));
+        $this->local(sprintf('cp %s %s', $databaseFileWithTime, $databaseFile));
+        $this->remote(sprintf('rm %s', $temporalFile));
 
         if ($this->remote->getName() == $this->local->getName()) {
             return;
         }
-        $this->cmd(sprintf('sed \'s/%s/%s/g\' %s', $this->remote->getName(), $this->local->getName(), $databaseFile));
+        $this->local(sprintf('sed \'s/%s/%s/g\' %s', $this->remote->getName(), $this->local->getName(), $databaseFile));
     }
 
     /**
@@ -83,7 +81,7 @@ class DatabaseHandler extends AbstractHandler
     public function getDirectory()
     {
         if (!is_dir($this->directory)) {
-            $this->cmd(sprintf('mkdir -p %s', $this->directory));
+            $this->local(sprintf('mkdir -p %s', $this->directory));
         }
 
         return $this->directory;
@@ -99,9 +97,17 @@ class DatabaseHandler extends AbstractHandler
         return sprintf('%s/current.sql', $directory);
     }
 
+    /**
+     * @return int
+     */
+    public function getFileSize(): int
+    {
+        return filesize($this->getFileName());
+    }
+
     public function load()
     {
-        $this->cmd(
+        $this->local(
             sprintf(
                 'mysql -h %s -u %s -p\'%s\' --port %s -e \'DROP DATABASE IF EXISTS %s;\'',
                 $this->local->getHost(),
@@ -111,7 +117,8 @@ class DatabaseHandler extends AbstractHandler
                 $this->local->getName()
             )
         );
-        $this->cmd(
+
+        $this->local(
             sprintf(
                 'mysql -h %s -u %s -p\'%s\' --port %s < %s',
                 $this->local->getHost(),
@@ -131,5 +138,13 @@ class DatabaseHandler extends AbstractHandler
         $directory = $this->getDirectory();
 
         return sprintf('%s/%s.sql', $directory, (new \DateTime())->format($this->getDateTimeFormat()));
+    }
+
+    /**
+     * @return string
+     */
+    private function getTemporalFileName()
+    {
+        return sprintf('/tmp/%s.sql', uniqid('downloader_', true));
     }
 }

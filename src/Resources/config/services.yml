@@ -2,28 +2,42 @@ services:
 
     desarrolla2_download.factory.database_factory:
         class: Desarrolla2\DownloadBundle\Factory\DatabaseFactory
-        arguments: ['%desarrolla2_download.databases.remote%','%desarrolla2_download.databases.local%']
+        arguments: ['%desarrolla2_download.database.remote%','%desarrolla2_download.database.local%']
 
     desarrolla2_download.factory.directory_factory:
         class: Desarrolla2\DownloadBundle\Factory\DirectoryFactory
         arguments: ['%desarrolla2_download.directories%']
 
     desarrolla2_download.model.database.remote:
-            class: Desarrolla2\DownloadBundle\Model\Database
-            factory: 'desarrolla2_download.factory.database_factory:getRemote'
+        class: Desarrolla2\DownloadBundle\Model\Database
+        factory: 'desarrolla2_download.factory.database_factory:getRemote'
 
     desarrolla2_download.model.database.local:
         class: Desarrolla2\DownloadBundle\Model\Database
         factory: 'desarrolla2_download.factory.database_factory:getLocal'
 
     desarrolla2_download.model.directories:
-            class: Desarrolla2\DownloadBundle\Model\Database
-            factory: 'desarrolla2_download.factory.directory_factory:getDirectories'
+        class: Desarrolla2\DownloadBundle\Model\Database
+        factory: 'desarrolla2_download.factory.directory_factory:getDirectories'
 
     desarrolla2_download.handler.database_handler:
+        public: true
         class: Desarrolla2\DownloadBundle\Handler\DatabaseHandler
-        arguments: ['@desarrolla2_download.model.database.remote', '@desarrolla2_download.model.database.local', '%desarrolla2_download.databases.directory%']
+        arguments:
+            - '%desarrolla2_download.user%'
+            - '%desarrolla2_download.host%'
+            - '@desarrolla2_download.model.database.remote'
+            - '@desarrolla2_download.model.database.local'
+            - '%desarrolla2_download.database.directory%'
+        calls:
+            - ['setLogger', ['@logger']]
 
     desarrolla2_download.handler.directory_handler:
+        public: true
         class: Desarrolla2\DownloadBundle\Handler\DirectoryHandler
-        arguments: ['@desarrolla2_download.model.directories']
+        arguments:
+            - '%desarrolla2_download.user%'
+            - '%desarrolla2_download.host%'
+            - '@desarrolla2_download.model.directories'
+        calls:
+            - ['setLogger', ['@logger']]

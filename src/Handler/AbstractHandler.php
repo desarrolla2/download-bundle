@@ -13,23 +13,33 @@
 
 namespace Desarrolla2\DownloadBundle\Handler;
 
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 abstract class AbstractHandler
 {
+    /** @var string */
+    protected $user;
+
+    /** @var string */
+    protected $host;
+
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
-     * @param $cmd
+     * @param string $cmd
+     * @param int    $timeout
      * @return bool|string
      */
-    protected function cmd($cmd)
+    public function local(string $cmd, int $timeout = 300)
     {
-        $output = new ConsoleOutput();
-        $output->writeln($cmd);
+        $this->log($cmd);
 
         $process = new Process($cmd);
-        $process->setTimeout(60 * 30);
+        $process->setTimeout($timeout);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -37,5 +47,35 @@ abstract class AbstractHandler
         }
 
         return $process->getOutput();
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @param string $string
+     * @param string $level
+     */
+    protected function log(string $string, $level = LogLevel::INFO)
+    {
+        if (!$this->logger) {
+            return;
+        }
+        $this->logger->log($level, $string);
+    }
+
+    /**
+     * @param string $cmd
+     * @param int    $timeout
+     */
+    protected function remote(string $cmd, int $timeout = 300)
+    {
+        $cmd = sprintf('ssh %s@%s "%s"', $this->user, $this->host, $cmd);
+        $this->local($cmd, $timeout);
     }
 }

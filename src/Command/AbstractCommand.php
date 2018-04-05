@@ -13,16 +13,16 @@
 
 namespace Desarrolla2\DownloadBundle\Command;
 
+use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
+use Desarrolla2\DownloadBundle\Handler\DirectoryHandler;
 use Desarrolla2\Timer\Formatter\Human;
 use Desarrolla2\Timer\Timer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Yaml\Yaml;
 
 abstract class AbstractCommand extends Command implements ContainerAwareInterface
 {
@@ -35,76 +35,36 @@ abstract class AbstractCommand extends Command implements ContainerAwareInterfac
     protected $output;
 
     /**
-     * @param string $cmd
-     * @return string
-     */
-    protected function cmd(string $cmd)
-    {
-        $this->timer->mark();
-        $this->log(sprintf('<info>cmd:</info> %s', $cmd));
-        $process = new Process($cmd);
-        $process->setTimeout(60 * 5);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-        $mark = $this->timer->mark();
-        $this->logLn(sprintf(' <info>OK</info> %s', $mark['time']['from_previous']));
-
-        return $process->getOutput();
-    }
-
-
-    /**
      * @param array $configuration
      */
-    protected function downloadDirectories(array $configuration)
+    protected function finalize(OutputInterface $output)
     {
-        if (array_key_exists('directories', $configuration)) {
-            foreach ($configuration['directories'] as $directory) {
-                $this->cmd(
-                    sprintf(
-                        'rsync -rzd --exclude="*/cache/*" --exclude="*/spool/*" %s %s',
-                        $directory['remote'],
-                        $directory['local']
-                    )
-                );
-            }
-        }
-    }
+        /** @var DatabaseHandler $handler */
+        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
+        $info = [['database size', $this->formatSize($handler->getFileSize())],];
 
-    /**
-     * @param array $configuration
-     */
-    protected function finalize(string $site, array $configuration)
-    {
-        $mark = $this->timer->mark();
-        $databaseFile = $this->getDataBaseFileName($site);
-        $directories = [];
-        if (array_key_exists('directories', $configuration)) {
-            foreach ($configuration['directories'] as $directory) {
-                $directoryName = sprintf('%s/%s', $directory['local'], basename($directory['remote']));
-                $size = $this->getDirectorySize($directoryName);
-                $directories[] = ['name' => $directoryName, 'size' => $this->formatSize($size)];
-            }
-        }
-
+        /** @var DirectoryHandler $handler */
+        $handler = $this->container->get('desarrolla2_download.handler.directory_handler');
+        $directories = $handler->getDirectories();
         foreach ($directories as $directory) {
-            $this->logLn(sprintf('<info>Directory size</info>: "%s" "%s"', $directory['size'], $directory['name']));
+            $info[] = [
+                sprintf('%s size:', $this->truncateDirectoryName($directory->getLocal())),
+                $this->formatSize($handler->getLocalSize($directory)),
+            ];
         }
 
-        $this->logLn(sprintf('<info>Database size</info>: "%s"', $this->formatSize(filesize($databaseFile))));
-        $this->logLn(sprintf('<info>Total time</info>: "%s"', $mark['time']['from_start']));
+        $table = new Table($output);
+        $table->setHeaders(['name', 'value']);
+        $table->setRows($info);
+        $table->render();
     }
 
     /**
      * @param int $size
      * @return string
      */
-    protected function formatSize($size)
+    protected function formatSize(int $size)
     {
-        $size = (int)$size;
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
 
@@ -112,43 +72,9 @@ abstract class AbstractCommand extends Command implements ContainerAwareInterfac
     }
 
     /**
-     * @param string $site
-     * @return array
+     * @param InputInterface  $input
+     * @param OutputInterface $output
      */
-    protected function getConfiguration(string $site): array
-    {
-        $configurationFile = $this->getConfigurationFile();
-        if (!is_file($configurationFile)) {
-            throw new \RuntimeException('configuration file not found');
-        }
-        $configuration = Yaml::parse(file_get_contents($configurationFile));
-
-        if (!array_key_exists($site, $configuration['config'])) {
-            throw new \RuntimeException(sprintf('site "%s" not exist in configuration', $site));
-        }
-
-        return $configuration['config'][$site];
-    }
-
-    /**
-     * @return string
-     */
-    protected function getConfigurationFile(): string
-    {
-        $configurationFile = __DIR__.'/../../config.yml';
-
-        return $configurationFile;
-    }
-
-
-    /**
-     * @return string
-     */
-    protected function getDirectorySize(string $directory): string
-    {
-        return $this->cmd(sprintf('du -s -B1 %s | awk \'{print $1}\'', $directory));
-    }
-
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
@@ -157,46 +83,16 @@ abstract class AbstractCommand extends Command implements ContainerAwareInterfac
     }
 
     /**
-     * @param array $configuration
+     * @param string $directoryName
+     * @return string
      */
-    protected function loadDatabase(string $site, array $configuration)
+    private function truncateDirectoryName(string $directoryName): string
     {
-        $databaseFile = $this->getDataBaseFileName($site);
-        $this->cmd(
-            sprintf(
-                'mysql -h %s -u %s -p\'%s\' --port %s -e \'DROP DATABASE IF EXISTS %s;\'',
-                $configuration['databases']['local']['host'],
-                $configuration['databases']['local']['user'],
-                $configuration['databases']['local']['password'],
-                $configuration['databases']['local']['port'],
-                $configuration['databases']['local']['name']
-            )
-        );
-        $this->cmd(
-            sprintf(
-                'mysql -h %s -u %s -p\'%s\' --port %s < %s',
-                $configuration['databases']['local']['host'],
-                $configuration['databases']['local']['user'],
-                $configuration['databases']['local']['password'],
-                $configuration['databases']['local']['port'],
-                $databaseFile
-            )
-        );
-    }
+        $maxLenght = 20;
+        if (strlen($directoryName) > $maxLenght) {
+            return sprintf('..%s', substr($directoryName, 2 - $maxLenght));
+        }
 
-    /**
-     * @param $message
-     */
-    protected function log($message)
-    {
-        $this->output->write($message);
-    }
-
-    /**
-     * @param $message
-     */
-    protected function logLn($message)
-    {
-        $this->output->writeln($message);
+        return $directoryName;
     }
 }

@@ -14,6 +14,7 @@
 namespace Desarrolla2\DownloadBundle\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DownloadCommand extends AbstractCommand
@@ -26,10 +27,18 @@ class DownloadCommand extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');
+        $handler->setLogger(new ConsoleLogger($output));
+        $output->writeln(' - downloading database');
         $handler->download();
+        $output->writeln(' - loading database');
         $handler->load();
 
         $handler = $this->container->get('desarrolla2_download.handler.directory_handler');
+        $handler->setLogger(new ConsoleLogger($output));
+        $output->writeln(' - downloading directories');
         $handler->download();
+        $output->writeln(' - done');
+
+        $this->finalize($output);
     }
 }

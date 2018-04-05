@@ -21,14 +21,26 @@ class Directory
     /** @var string */
     private $local;
 
+    /** @var array */
+    private $exclude;
+
     /**
      * @param string $remote
      * @param string $local
      */
-    public function __construct(string $remote, string $local)
+    public function __construct(string $remote, string $local, array $exclude = [])
     {
         $this->remote = $remote;
         $this->local = $local;
+        $this->exclude = $exclude;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExclude(): array
+    {
+        return $this->exclude;
     }
 
     /**

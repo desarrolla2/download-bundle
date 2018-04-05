@@ -15,6 +15,7 @@ namespace Desarrolla2\DownloadBundle\Command;
 
 use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Finder\Finder;
@@ -28,11 +29,16 @@ class LoadCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var DatabaseHandler $handler */
-        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
         $this->selectDataBase($input, $output);
 
+        /** @var DatabaseHandler $handler */
+        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
+        $handler->setLogger(new ConsoleLogger($output));
+        $output->writeln(' - loading database');
         $handler->load();
+        $output->writeln(' - done');
+
+        $this->finalize($output);
     }
 
     /**
@@ -84,7 +90,7 @@ class LoadCommand extends AbstractCommand
         $selected = $helper->ask($input, $output, $question);
         foreach ($files as $file) {
             if ($file['formatted'] == $selected) {
-                $this->cmd(
+                $this->local(
                     sprintf(
                         'cp %s %s',
                         $file['path'],

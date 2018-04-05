@@ -32,7 +32,7 @@ class DirectoryFactory
     {
         $directories = [];
         foreach ($this->directories as $directory) {
-            $directories[] = new Directory($directory['remote'], $directory['local']);
+            $directories[] = new Directory($directory['remote'], $directory['local'], $directory['exclude']);
         }
 
         return $directories;

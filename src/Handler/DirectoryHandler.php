@@ -23,21 +23,49 @@ class DirectoryHandler extends AbstractHandler
     /**
      * @param array $directories
      */
-    public function __construct(array $directories)
+    public function __construct(string $user, string $host, array $directories)
     {
+        $this->user = $user;
+        $this->host = $host;
         $this->directories = $directories;
     }
 
     public function download()
     {
         foreach ($this->directories as $directory) {
-            $this->cmd(
+
+            $exclude = '';
+            foreach ($directory->getExclude() as $path) {
+                $exclude .= sprintf('--exclude="%s" ', $path);
+            }
+            $this->local(
                 sprintf(
-                    'rsync -rzd --exclude="*/cache/*" --exclude="*/spool/*" %s %s',
+                    'rsync -rzd %s %s@%s:%s %s',
+                    trim($exclude),
+                    $this->user,
+                    $this->host,
                     $directory->getRemote(),
                     $directory->getLocal()
                 )
             );
         }
+    }
+
+    /**
+     * @return Directory[]
+     */
+    public function getDirectories(): array
+    {
+        return $this->directories;
+    }
+
+    /**
+     * @param Directory $directory
+     * @return int
+     */
+    public function getLocalSize(Directory $directory): int
+    {
+
+        return (int)$this->local(sprintf('du -s -B1 %s | awk \'{print $1}\'', $directory->getLocal()));
     }
 }

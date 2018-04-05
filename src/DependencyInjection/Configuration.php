@@ -33,7 +33,9 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('databases')
+                ->scalarNode('user')->isRequired()->end()
+                ->scalarNode('host')->isRequired()->end()
+                ->arrayNode('database')
                 ->isRequired()
                     ->children()
                         ->scalarNode('directory')->isRequired()->end()
@@ -64,6 +66,9 @@ class Configuration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('remote')->isRequired()->end()
                             ->scalarNode('local')->isRequired()->end()
+                            ->arrayNode('exclude')
+                                ->prototype('scalar')->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
