@@ -68,8 +68,8 @@ download:
         web_uploads:
             remote: '/var/www/air.interlang.es/shared/web/uploads'
             local: '%kernel.root_dir%/../web'
-	    # you can exclude some directories from here
-	    exclude:
+	        # you can exclude some directories from there
+            exclude:
                 - 'cache'
 
         var_data:
@@ -90,7 +90,7 @@ php bin/console downloader:download
 
 This is what you will see in your command line.
 
-![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_1.png)
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/doc/img/screenshot_1.png)
 
 ### Load
 
@@ -103,11 +103,11 @@ php bin/console downloader:load
 
 Select from available dates.
 
-![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_2.png)
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/doc/img/screenshot_2.png)
 
 This is what you will see in your command line.
 
-![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/Resources/doc/screenshot_3.png)
+![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/doc/img/screenshot_3.png)
 
 ## Contact
 
