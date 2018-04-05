@@ -68,7 +68,7 @@ download:
         web_uploads:
             remote: '/var/www/air.interlang.es/shared/web/uploads'
             local: '%kernel.root_dir%/../web'
-	        # you can exclude some directories from there
+            # you can exclude some directories from there
             exclude:
                 - 'cache'
 
