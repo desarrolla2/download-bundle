@@ -44,14 +44,14 @@ You need put something like this in your config_dev.yml
 ```yml
 download:
     user: 'deploy_user'
-    host: 'production_url_or_ip'
+    host: 'production_host_or_ip'
 
     database:
         # local directory to save databases
         directory: '%kernel.root_dir%/../var/data/databases'
 
         remote:
-            host: '127.0.0.1'
+            host: 'production_database_host'
             name: 'production_database_name'
             user: 'production_database_user'
             password: 'production_database_password'           
@@ -75,6 +75,8 @@ download:
         var_data:
             remote: '/path/to/project/var/data'
             local: '%kernel.root_dir%/../var'
+            exclude:
+                - 'spool'            
             
 ```
 
