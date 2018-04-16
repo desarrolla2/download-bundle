@@ -83,7 +83,7 @@ class LoadCommand extends AbstractCommand
         $question = new ChoiceQuestion(
             'Please select database to load (defaults to current)',
             $options,
-            0
+            count($options) - 1
         );
         $question->setErrorMessage('Date %s is invalid.');
 
@@ -91,6 +91,7 @@ class LoadCommand extends AbstractCommand
         foreach ($files as $file) {
             if ($file['formatted'] == $selected) {
                 $handler->local(sprintf('cp %s %s', $file['path'], $handler->getFileName()));
+                $output->writeln(sprintf(' - selected: %s', $selected));
 
                 return;
             }
