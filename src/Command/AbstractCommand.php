@@ -15,6 +15,7 @@ namespace Desarrolla2\DownloadBundle\Command;
 
 use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
 use Desarrolla2\DownloadBundle\Handler\DirectoryHandler;
+use Desarrolla2\DownloadBundle\Model\Directory;
 use Desarrolla2\Timer\Formatter\Human;
 use Desarrolla2\Timer\Timer;
 use Symfony\Component\Console\Command\Command;
@@ -39,17 +40,22 @@ abstract class AbstractCommand extends Command implements ContainerAwareInterfac
      */
     protected function finalize(OutputInterface $output)
     {
-        /** @var DatabaseHandler $handler */
-        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
-        $info = [['database size', $this->formatSize($handler->getFileSize())],];
-
+        /** @var DatabaseHandler $databaseHandler */
+        $databaseHandler = $this->container->get('desarrolla2_download.handler.database_handler');
         /** @var DirectoryHandler $handler */
-        $handler = $this->container->get('desarrolla2_download.handler.directory_handler');
-        $directories = $handler->getDirectories();
+        $directoryHandler = $this->container->get('desarrolla2_download.handler.directory_handler');
+        $info = [['database size', $this->formatSize($databaseHandler->getFileSize())],];
+
+        $directory = new Directory('', $databaseHandler->getDirectory());
+        $info[] = [
+            sprintf('dir %s size:', $this->truncateDirectoryName($directory->getLocal())),
+            $this->formatSize($directoryHandler->getLocalSize($directory)),
+        ];
+        $directories = $directoryHandler->getDirectories();
         foreach ($directories as $directory) {
             $info[] = [
-                sprintf('%s size:', $this->truncateDirectoryName($directory->getLocal())),
-                $this->formatSize($handler->getLocalSize($directory)),
+                sprintf('dir %s size:', $this->truncateDirectoryName($directory->getLocal())),
+                $this->formatSize($directoryHandler->getLocalSize($directory)),
             ];
         }
 
