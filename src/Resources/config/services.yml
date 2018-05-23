@@ -41,3 +41,18 @@ services:
             - '@desarrolla2_download.model.directories'
         calls:
             - ['setLogger', ['@logger']]
+
+
+    desarrolla2_download.command.download_command:
+        class: Desarrolla2\DownloadBundle\Command\DownloadCommand
+        calls:
+            - [setContainer, ['@service_container']]
+        tags:
+            - { name: console.command }
+
+    desarrolla2_download.command.load_command:
+        class: Desarrolla2\DownloadBundle\Command\LoadCommand
+        calls:
+            - [setContainer, ['@service_container']]
+        tags:
+            - { name: console.command }
