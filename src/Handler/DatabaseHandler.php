@@ -29,7 +29,7 @@ class DatabaseHandler extends AbstractHandler
     /**
      * @param Database $remote
      * @param Database $local
-     * @param string   $directory
+     * @param string $directory
      */
     public function __construct(string $user, string $host, Database $remote, Database $local, string $directory)
     {
@@ -64,7 +64,17 @@ class DatabaseHandler extends AbstractHandler
         if ($this->remote->getName() == $this->local->getName()) {
             return;
         }
-        $this->local(sprintf('sed \'s/%s/%s/g\' %s', $this->remote->getName(), $this->local->getName(), $databaseFile));
+        $this->local(
+            sprintf(
+                'sed \'s/%s/%s/g\' %s > %s',
+                $this->remote->getName(),
+                $this->local->getName(),
+                $databaseFile,
+                $temporalFile
+            )
+        );
+
+        $this->local(sprintf('mv %s %s', $temporalFile, $databaseFile));
     }
 
     /**
