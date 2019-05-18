@@ -24,12 +24,15 @@ class LoadCommand extends AbstractCommand
 {
     protected function configure()
     {
-        $this->setName('downloader:load');
+        $this->setName('downloader:load')
+            ->addOption('current');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->selectDataBase($input, $output);
+        if (!$input->getOption('current')) {
+            $this->selectDataBase($input, $output);
+        }
 
         /** @var DatabaseHandler $handler */
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');
