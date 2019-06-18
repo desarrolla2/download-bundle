@@ -64,7 +64,7 @@ class DatabaseHandler extends AbstractHandler
 
         if (count($this->onlyStructureTables)) {
             $sql = sprintf(
-                '&& mysqldump -h%s -u%s -p\'%s\' --port %s --create-options %s %s --no-data >> %s',
+                'mysqldump -h%s -u%s -p\'%s\' --port %s --create-options %s %s --no-data >> %s',
                 $this->remote->getHost(),
                 $this->remote->getUser(),
                 $this->remote->getPassword(),
