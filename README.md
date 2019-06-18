@@ -49,6 +49,10 @@ download:
     database:
         # local directory to save databases
         directory: '%kernel.root_dir%/../var/data/databases'
+        
+        # optional parameter. use it for only strucuture download, not data
+        only_structure:
+          - 'mail_history'
 
         remote:
             host: 'production_database_host'
@@ -63,7 +67,6 @@ download:
             password: '%database_password%'
 
     # some directories that you want download.
-
     directories:
         web_uploads:
             remote: '/path/to/project/web/uploads'

@@ -29,6 +29,7 @@ services:
             - '@desarrolla2_download.model.database.remote'
             - '@desarrolla2_download.model.database.local'
             - '%desarrolla2_download.database.directory%'
+            - '%desarrolla2_download.database.only_structure%'
         calls:
             - ['setLogger', ['@logger']]
 

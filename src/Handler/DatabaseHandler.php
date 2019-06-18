@@ -26,18 +26,23 @@ class DatabaseHandler extends AbstractHandler
     /** @var string */
     private $directory;
 
-    /**
-     * @param Database $remote
-     * @param Database $local
-     * @param string $directory
-     */
-    public function __construct(string $user, string $host, Database $remote, Database $local, string $directory)
-    {
+    /** @var array */
+    private $onlyStructureTables;
+
+    public function __construct(
+        string $user,
+        string $host,
+        Database $remote,
+        Database $local,
+        string $directory,
+        array $onlyStructureTables = []
+    ) {
         $this->user = $user;
         $this->host = $host;
         $this->remote = $remote;
         $this->local = $local;
         $this->directory = $directory;
+        $this->onlyStructureTables = $onlyStructureTables;
     }
 
     public function download()
@@ -45,17 +50,31 @@ class DatabaseHandler extends AbstractHandler
         $databaseFile = $this->getFileName();
         $databaseFileWithTime = $this->getFileNameWithDateTime();
         $temporalFile = $this->getTemporalFileName();
-        $this->remote(
-            sprintf(
-                'mysqldump -h%s -u%s -p\'%s\' --port %s --single-transaction --create-options --databases %s > %s',
+        $sql = sprintf(
+            'mysqldump -h%s -u%s -p\'%s\' --port %s --single-transaction --create-options --databases %s %s > %s',
+            $this->remote->getHost(),
+            $this->remote->getUser(),
+            $this->remote->getPassword(),
+            $this->remote->getPort(),
+            $this->remote->getName(),
+            $this->getSkipTables(),
+            $temporalFile
+        );
+        $this->remote($sql);
+
+        if (count($this->onlyStructureTables)) {
+            $sql = sprintf(
+                '&& mysqldump -h%s -u%s -p\'%s\' --port %s --create-options %s %s --no-data >> %s',
                 $this->remote->getHost(),
                 $this->remote->getUser(),
                 $this->remote->getPassword(),
                 $this->remote->getPort(),
                 $this->remote->getName(),
+                implode(' ', $this->onlyStructureTables),
                 $temporalFile
-            )
-        );
+            );
+            $this->remote($sql);
+        }
 
         $this->local(sprintf('scp %s@%s:%s %s', $this->user, $this->host, $temporalFile, $databaseFileWithTime));
         $this->local(sprintf('cp %s %s', $databaseFileWithTime, $databaseFile));
@@ -77,18 +96,12 @@ class DatabaseHandler extends AbstractHandler
         $this->local(sprintf('mv %s %s', $temporalFile, $databaseFile));
     }
 
-    /**
-     * @return string
-     */
     public function getDateTimeFormat(): string
     {
         return 'Ymd_His';
     }
 
-    /**
-     * @return string
-     */
-    public function getDirectory()
+    public function getDirectory(): string
     {
         if (!is_dir($this->directory)) {
             $this->local(sprintf('mkdir -p %s', $this->directory));
@@ -97,9 +110,6 @@ class DatabaseHandler extends AbstractHandler
         return $this->directory;
     }
 
-    /**
-     * @return string
-     */
     public function getFileName(): string
     {
         $directory = $this->getDirectory();
@@ -107,9 +117,6 @@ class DatabaseHandler extends AbstractHandler
         return sprintf('%s/current.sql', $directory);
     }
 
-    /**
-     * @return int
-     */
     public function getFileSize(): int
     {
         return filesize($this->getFileName());
@@ -140,9 +147,6 @@ class DatabaseHandler extends AbstractHandler
         );
     }
 
-    /**
-     * @return string
-     */
     private function getFileNameWithDateTime(): string
     {
         $directory = $this->getDirectory();
@@ -150,10 +154,17 @@ class DatabaseHandler extends AbstractHandler
         return sprintf('%s/%s.sql', $directory, (new \DateTime())->format($this->getDateTimeFormat()));
     }
 
-    /**
-     * @return string
-     */
-    private function getTemporalFileName()
+    private function getSkipTables(): string
+    {
+        $sql = '';
+        foreach ($this->onlyStructureTables as $table) {
+            $sql .= sprintf(' --ignore-table=%s.%s', $this->remote->getName(), $table);
+        }
+
+        return trim($sql);
+    }
+
+    private function getTemporalFileName(): string
     {
         return sprintf('/tmp/%s.sql', uniqid('downloader_', true));
     }
