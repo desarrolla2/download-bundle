@@ -40,6 +40,11 @@ class DownloadExtension extends Extension
         $container->setParameter('desarrolla2_download.database.local', $config['database']['local']);
         $container->setParameter('desarrolla2_download.database.only_structure', $config['database']['only_structure']);
         $container->setParameter('desarrolla2_download.directories', $config['directories']);
+        $container->setParameter('desarrolla2_download.timeout', 300);
+
+        if ($config['timeout']) {
+            $container->setParameter('desarrolla2_download.timeout', $config['timeout']);
+        }
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');

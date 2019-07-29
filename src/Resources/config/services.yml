@@ -1,59 +1,60 @@
 services:
 
-    desarrolla2_download.factory.database_factory:
-        class: Desarrolla2\DownloadBundle\Factory\DatabaseFactory
-        arguments: ['%desarrolla2_download.database.remote%','%desarrolla2_download.database.local%']
+  desarrolla2_download.factory.database_factory:
+    class: Desarrolla2\DownloadBundle\Factory\DatabaseFactory
+    arguments: ['%desarrolla2_download.database.remote%','%desarrolla2_download.database.local%']
 
-    desarrolla2_download.factory.directory_factory:
-        class: Desarrolla2\DownloadBundle\Factory\DirectoryFactory
-        arguments: ['%desarrolla2_download.directories%']
+  desarrolla2_download.factory.directory_factory:
+    class: Desarrolla2\DownloadBundle\Factory\DirectoryFactory
+    arguments: ['%desarrolla2_download.directories%']
 
-    desarrolla2_download.model.database.remote:
-        class: Desarrolla2\DownloadBundle\Model\Database
-        factory: 'desarrolla2_download.factory.database_factory:getRemote'
+  desarrolla2_download.model.database.remote:
+    class: Desarrolla2\DownloadBundle\Model\Database
+    factory: 'desarrolla2_download.factory.database_factory:getRemote'
 
-    desarrolla2_download.model.database.local:
-        class: Desarrolla2\DownloadBundle\Model\Database
-        factory: 'desarrolla2_download.factory.database_factory:getLocal'
+  desarrolla2_download.model.database.local:
+    class: Desarrolla2\DownloadBundle\Model\Database
+    factory: 'desarrolla2_download.factory.database_factory:getLocal'
 
-    desarrolla2_download.model.directories:
-        class: Desarrolla2\DownloadBundle\Model\Database
-        factory: 'desarrolla2_download.factory.directory_factory:getDirectories'
+  desarrolla2_download.model.directories:
+    class: Desarrolla2\DownloadBundle\Model\Database
+    factory: 'desarrolla2_download.factory.directory_factory:getDirectories'
 
-    desarrolla2_download.handler.database_handler:
-        public: true
-        class: Desarrolla2\DownloadBundle\Handler\DatabaseHandler
-        arguments:
-            - '%desarrolla2_download.user%'
-            - '%desarrolla2_download.host%'
-            - '@desarrolla2_download.model.database.remote'
-            - '@desarrolla2_download.model.database.local'
-            - '%desarrolla2_download.database.directory%'
-            - '%desarrolla2_download.database.only_structure%'
-        calls:
-            - ['setLogger', ['@logger']]
+  desarrolla2_download.handler.database_handler:
+    public: true
+    class: Desarrolla2\DownloadBundle\Handler\DatabaseHandler
+    arguments:
+      - '%desarrolla2_download.user%'
+      - '%desarrolla2_download.host%'
+      - '@desarrolla2_download.model.database.remote'
+      - '@desarrolla2_download.model.database.local'
+      - '%desarrolla2_download.database.directory%'
+      - '%desarrolla2_download.database.only_structure%'
+    calls:
+      - ['setLogger', ['@logger']]
+      - ['setDefaultTimeout', ['%desarrolla2_download.timeout%']]
 
-    desarrolla2_download.handler.directory_handler:
-        public: true
-        class: Desarrolla2\DownloadBundle\Handler\DirectoryHandler
-        arguments:
-            - '%desarrolla2_download.user%'
-            - '%desarrolla2_download.host%'
-            - '@desarrolla2_download.model.directories'
-        calls:
-            - ['setLogger', ['@logger']]
+  desarrolla2_download.handler.directory_handler:
+    public: true
+    class: Desarrolla2\DownloadBundle\Handler\DirectoryHandler
+    arguments:
+      - '%desarrolla2_download.user%'
+      - '%desarrolla2_download.host%'
+      - '@desarrolla2_download.model.directories'
+    calls:
+      - ['setLogger', ['@logger']]
+      - ['setDefaultTimeout', ['%desarrolla2_download.timeout%']]
 
+  desarrolla2_download.command.download_command:
+    class: Desarrolla2\DownloadBundle\Command\DownloadCommand
+    calls:
+      - [setContainer, ['@service_container']]
+    tags:
+      - { name: console.command }
 
-    desarrolla2_download.command.download_command:
-        class: Desarrolla2\DownloadBundle\Command\DownloadCommand
-        calls:
-            - [setContainer, ['@service_container']]
-        tags:
-            - { name: console.command }
-
-    desarrolla2_download.command.load_command:
-        class: Desarrolla2\DownloadBundle\Command\LoadCommand
-        calls:
-            - [setContainer, ['@service_container']]
-        tags:
-            - { name: console.command }
+  desarrolla2_download.command.load_command:
+    class: Desarrolla2\DownloadBundle\Command\LoadCommand
+    calls:
+      - [setContainer, ['@service_container']]
+    tags:
+      - { name: console.command }

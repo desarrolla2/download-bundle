@@ -46,11 +46,14 @@ download:
     user: 'deploy_user'
     host: 'production_host_or_ip'
 
+    # optional parameter. use it if you want customize max proccess time
+    timeout: 300
+
     database:
         # local directory to save databases
         directory: '%kernel.root_dir%/../var/data/databases'
         
-        # optional parameter. use it for only strucuture download, not data
+        # optional parameter. use it for tables that you just want to download the structure, not data
         only_structure:
           - 'mail_history'
 

@@ -29,14 +29,29 @@ abstract class AbstractHandler
     /** @var LoggerInterface */
     protected $logger;
 
+    /** @var int */
+    private $defaultTimeout = 300;
+
+    /**
+     * @return int
+     */
+    public function getDefaultTimeout(): int
+    {
+        return $this->defaultTimeout;
+    }
+
     /**
      * @param string $cmd
      * @param int    $timeout
      * @return bool|string
      */
-    public function local(string $cmd, int $timeout = 300)
+    public function local(string $cmd, int $timeout = null)
     {
         $this->log($cmd);
+
+        if (!$timeout) {
+            $timeout = $this->getDefaultTimeout();
+        }
 
         $process = new Process($cmd);
         $process->setTimeout($timeout);
@@ -47,6 +62,14 @@ abstract class AbstractHandler
         }
 
         return $process->getOutput();
+    }
+
+    /**
+     * @param int $defaultTimeout
+     */
+    public function setDefaultTimeout(int $defaultTimeout): void
+    {
+        $this->defaultTimeout = $defaultTimeout;
     }
 
     /**
@@ -73,9 +96,9 @@ abstract class AbstractHandler
      * @param string $cmd
      * @param int    $timeout
      */
-    protected function remote(string $cmd, int $timeout = 300)
+    protected function remote(string $cmd)
     {
         $cmd = sprintf('ssh %s@%s "%s"', $this->user, $this->host, $cmd);
-        $this->local($cmd, $timeout);
+        $this->local($cmd);
     }
 }

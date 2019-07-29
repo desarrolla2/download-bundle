@@ -35,6 +35,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('user')->isRequired()->end()
                 ->scalarNode('host')->isRequired()->end()
+                ->scalarNode('timeout')->defaultNull()->end()
                 ->arrayNode('database')
                 ->isRequired()
                     ->children()
