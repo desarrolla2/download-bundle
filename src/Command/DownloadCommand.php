@@ -21,22 +21,30 @@ class DownloadCommand extends AbstractCommand
 {
     protected function configure()
     {
-        $this->setName('downloader:download');
+        $this->setName('downloader:download')
+            ->addOption('avoid-database-download')
+            ->addOption('avoid-database-load')
+            ->addOption('avoid-directories-download');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
-        $handler->setLogger(new ConsoleLogger($output));
-        $output->writeln(' - downloading database');
-        $handler->download();
-        $output->writeln(' - loading database');
-        $handler->load();
-
-        $handler = $this->container->get('desarrolla2_download.handler.directory_handler');
-        $handler->setLogger(new ConsoleLogger($output));
-        $output->writeln(' - downloading directories');
-        $handler->download();
+        if (!$input->getOption('avoid-database-download')) {
+            $handler = $this->container->get('desarrolla2_download.handler.database_handler');
+            $handler->setLogger(new ConsoleLogger($output));
+            $output->writeln(' - downloading database');
+            $handler->download();
+            if (!$input->getOption('avoid-database-load')) {
+                $output->writeln(' - loading database');
+                $handler->load();
+            }
+        }
+        if (!$input->getOption('avoid-directories-download')) {
+            $handler = $this->container->get('desarrolla2_download.handler.directory_handler');
+            $handler->setLogger(new ConsoleLogger($output));
+            $output->writeln(' - downloading directories');
+            $handler->download();
+        }
         $output->writeln(' - done');
 
         $this->finalize($output);
