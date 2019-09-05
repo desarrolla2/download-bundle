@@ -45,6 +45,7 @@ class DownloadCommand extends AbstractCommand
             $output->writeln(' - downloading directories');
             $handler->download();
         }
+
         $output->writeln(' - done');
 
         $this->finalize($output);

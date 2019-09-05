@@ -45,13 +45,20 @@ class DatabaseHandler extends AbstractHandler
         $this->onlyStructureTables = $onlyStructureTables;
     }
 
+    public function clean()
+    {
+        $this->local(
+            sprintf('find %s -type f -not -name \'%s\' -delete', $this->getDirectory(), $this->getCurrentFileName())
+        );
+    }
+
     public function download()
     {
         $databaseFile = $this->getFileName();
         $databaseFileWithTime = $this->getFileNameWithDateTime();
         $temporalFile = $this->getTemporalFileName();
         $sql = sprintf(
-            'mysqldump -h%s -u%s -p\'%s\' --port %s --single-transaction --create-options --databases %s %s > %s',
+            'mysqldump - h % s - u % s - p\'%s\' --port %s --single-transaction --create-options --databases %s %s > %s',
             $this->remote->getHost(),
             $this->remote->getUser(),
             $this->remote->getPassword(),
@@ -112,9 +119,7 @@ class DatabaseHandler extends AbstractHandler
 
     public function getFileName(): string
     {
-        $directory = $this->getDirectory();
-
-        return sprintf('%s/current.sql', $directory);
+        return sprintf('%s/%s', $this->getDirectory(), $this->getCurrentFileName());
     }
 
     public function getFileSize(): int
@@ -145,6 +150,14 @@ class DatabaseHandler extends AbstractHandler
                 $this->getFileName()
             )
         );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrentFileName(): string
+    {
+        return 'current.sql';
     }
 
     private function getFileNameWithDateTime(): string
