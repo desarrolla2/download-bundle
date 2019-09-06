@@ -58,7 +58,7 @@ class DatabaseHandler extends AbstractHandler
         $databaseFileWithTime = $this->getFileNameWithDateTime();
         $temporalFile = $this->getTemporalFileName();
         $sql = sprintf(
-            'mysqldump -h %s -u %s - p\'%s\' --port %s --single-transaction --create-options --databases %s %s > %s',
+            'mysqldump -h%s -u%s -p\'%s\' --port %s --single-transaction --create-options --databases %s %s > %s',
             $this->remote->getHost(),
             $this->remote->getUser(),
             $this->remote->getPassword(),
