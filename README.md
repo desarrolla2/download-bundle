@@ -69,6 +69,9 @@ download:
             user: '%database_user%'
             password: '%database_password%'
 
+        # optional parameter. define max number of database files to keep on local directory
+        max_local_db: 0
+
     # some directories that you want download.
     directories:
         web_uploads:
@@ -116,6 +119,14 @@ Select from available dates.
 This is what you will see in your command line.
 
 ![screenshot](https://raw.githubusercontent.com/desarrolla2/download-bundle/master/doc/img/screenshot_3.png)
+
+### Delete old databases
+
+Delete old databases from the local directory. The max number of files you can keep is defined by max_local_db parameter
+
+```bash
+php bin/console downloader:delete:old
+```
 
 ## Contact
 
