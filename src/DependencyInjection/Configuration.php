@@ -60,6 +60,7 @@ class Configuration implements ConfigurationInterface
                                 ->integerNode('port')->defaultNull()->end()
                             ->end()
                         ->end()
+                        ->integerNode('max_local_db')->defaultValue(0)->end()
                     ->end()
                     ->children()
                         ->arrayNode('only_structure')

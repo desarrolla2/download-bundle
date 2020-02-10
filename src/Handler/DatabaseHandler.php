@@ -14,6 +14,8 @@
 namespace Desarrolla2\DownloadBundle\Handler;
 
 use Desarrolla2\DownloadBundle\Model\Database;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class DatabaseHandler extends AbstractHandler
 {
@@ -26,6 +28,9 @@ class DatabaseHandler extends AbstractHandler
     /** @var string */
     private $directory;
 
+    /** @var int */
+    private $maxLocalDb;
+
     /** @var array */
     private $onlyStructureTables;
 
@@ -35,6 +40,7 @@ class DatabaseHandler extends AbstractHandler
         Database $remote,
         Database $local,
         string $directory,
+        int $maxLocalDb,
         array $onlyStructureTables = []
     ) {
         $this->user = $user;
@@ -42,6 +48,7 @@ class DatabaseHandler extends AbstractHandler
         $this->remote = $remote;
         $this->local = $local;
         $this->directory = $directory;
+        $this->maxLocalDb = $maxLocalDb;
         $this->onlyStructureTables = $onlyStructureTables;
     }
 
@@ -117,6 +124,11 @@ class DatabaseHandler extends AbstractHandler
         return $this->directory;
     }
 
+    public function getMaxLocalDb()
+    {
+        return $this->maxLocalDb;
+    }
+
     public function getFileName(): string
     {
         return sprintf('%s/%s', $this->getDirectory(), $this->getCurrentFileName());
@@ -150,6 +162,32 @@ class DatabaseHandler extends AbstractHandler
                 $this->getFileName()
             )
         );
+    }
+
+    public function delete()
+    {
+        $maxLocalDb = $this->getMaxLocalDb();
+        if ($maxLocalDb <= 0) {
+            return;
+        }
+
+        $directory = $this->getDirectory();
+
+        $finder = new Finder();
+        $finder->files()->in($directory)->name('*.sql');
+        $finder->sort(
+            function (\SplFileInfo $a, \SplFileInfo $b) {
+                return strcmp($b->getRealPath(), $a->getRealPath());
+            }
+        );
+
+        $dbIndex = 0;
+        foreach ($finder as $file) {
+            if ($dbIndex > $maxLocalDb) {
+                $this->local(sprintf('rm %s', $file->getPathname()));
+            }
+            $dbIndex++;
+        }
     }
 
     /**

@@ -38,6 +38,10 @@ class DownloadCommand extends AbstractCommand
                 $output->writeln(' - loading database');
                 $handler->load();
             }
+
+            $output->writeln(' - deleting old databases');
+            $handler->delete();
+            $output->writeln(' - done');
         }
         if (!$input->getOption('avoid-directories-download')) {
             $handler = $this->container->get('desarrolla2_download.handler.directory_handler');

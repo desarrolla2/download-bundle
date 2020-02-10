@@ -38,6 +38,7 @@ class DownloadExtension extends Extension
         $container->setParameter('desarrolla2_download.database.directory', $config['database']['directory']);
         $container->setParameter('desarrolla2_download.database.remote', $config['database']['remote']);
         $container->setParameter('desarrolla2_download.database.local', $config['database']['local']);
+        $container->setParameter('desarrolla2_download.database.max_local_db', $config['database']['max_local_db']);
         $container->setParameter('desarrolla2_download.database.only_structure', $config['database']['only_structure']);
         $container->setParameter('desarrolla2_download.directories', $config['directories']);
         $container->setParameter('desarrolla2_download.timeout', 300);

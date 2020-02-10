@@ -41,6 +41,10 @@ class LoadCommand extends AbstractCommand
         $handler->load();
         $output->writeln(' - done');
 
+        $output->writeln(' - deleting old databases');
+        $handler->delete();
+        $output->writeln(' - done');
+
         $this->finalize($output);
     }
 
