@@ -40,8 +40,8 @@ class DownloadCommand extends AbstractCommand
             }
 
             $output->writeln(' - deleting old databases');
-            $handler->delete();
-            $output->writeln(' - done');
+            $totalDeleted = $handler->delete();
+            $output->writeln(sprintf(' - done. %s databases deleted', $totalDeleted));
         }
         if (!$input->getOption('avoid-directories-download')) {
             $handler = $this->container->get('desarrolla2_download.handler.directory_handler');

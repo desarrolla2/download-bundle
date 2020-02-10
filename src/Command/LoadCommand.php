@@ -42,8 +42,8 @@ class LoadCommand extends AbstractCommand
         $output->writeln(' - done');
 
         $output->writeln(' - deleting old databases');
-        $handler->delete();
-        $output->writeln(' - done');
+        $totalDeleted = $handler->delete();
+        $output->writeln(sprintf(' - done. %s databases deleted', $totalDeleted));
 
         $this->finalize($output);
     }

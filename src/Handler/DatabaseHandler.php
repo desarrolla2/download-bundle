@@ -182,12 +182,16 @@ class DatabaseHandler extends AbstractHandler
         );
 
         $dbIndex = 0;
+        $totalDeleted = 0;
         foreach ($finder as $file) {
             if ($dbIndex > $maxLocalDb) {
                 $this->local(sprintf('rm %s', $file->getPathname()));
+                $totalDeleted++;
             }
             $dbIndex++;
         }
+
+        return $totalDeleted;
     }
 
     /**
