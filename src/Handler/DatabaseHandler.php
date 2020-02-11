@@ -168,7 +168,7 @@ class DatabaseHandler extends AbstractHandler
     {
         $maxLocalDb = $this->getMaxLocalDb();
         if ($maxLocalDb <= 0) {
-            return;
+            return 0;
         }
 
         $directory = $this->getDirectory();
