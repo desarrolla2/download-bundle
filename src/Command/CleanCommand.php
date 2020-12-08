@@ -13,9 +13,11 @@
 
 namespace Desarrolla2\DownloadBundle\Command;
 
+use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class CleanCommand extends AbstractCommand
 {
@@ -28,11 +30,45 @@ class CleanCommand extends AbstractCommand
     {
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');
         $handler->setLogger(new ConsoleLogger($output));
-        $output->writeln(' - cleaning databases');
-        $handler->clean();
+        /** @var DatabaseHandler $handler */
+        $handler = $this->container->get('desarrolla2_download.handler.database_handler');
+        $files = $options = [];
+        $directory = $handler->getDirectory();
 
-        $output->writeln(' - done');
+        $finder = new Finder();
+        $finder->files()->in($directory)->name('*.sql');
+        $finder->sort(
+            function (\SplFileInfo $a, \SplFileInfo $b) {
+                return strcmp($a->getRealPath(), $b->getRealPath());
+            }
+        );
+        foreach ($finder as $file) {
+            $name = $file->getFilename();
+            $date = \DateTime::createFromFormat($handler->getDateTimeFormat(), str_replace('.sql', '', $name));
+            if (!$date) {
+                continue;
+            }
 
-        $this->finalize($output);
+            $formatted = $date->format('d F \a\t h:iA, l');
+            $files[] = [
+                'file' => $name,
+                'date' => $date,
+                'formatted' => $formatted,
+                'path' => $file->getRealPath(),
+            ];
+            $options[] = $formatted;
+        }
+        $filesToKeep = 30;
+        $numberOfFiles = count($files);
+        $output->writeln(sprintf(' - found %d databases', $numberOfFiles));
+        if ($numberOfFiles <= $filesToKeep) {
+            return;
+        }
+        $output->writeln(sprintf(' - removing %d databases', $numberOfFiles - $filesToKeep));
+        $filesToDelete = array_slice($files, 0, $numberOfFiles - $filesToKeep);
+        foreach ($filesToDelete as $file) {
+            $output->writeln(sprintf(' - removing "%s"', $file['file']));
+            $handler->local(sprintf('rm -rf %s', $file['path']));
+        }
     }
 }
