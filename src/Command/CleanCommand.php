@@ -32,7 +32,7 @@ class CleanCommand extends AbstractCommand
         $handler->setLogger(new ConsoleLogger($output));
         /** @var DatabaseHandler $handler */
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');
-        $files = $options = [];
+        $files = [];
         $directory = $handler->getDirectory();
 
         $finder = new Finder();
@@ -56,9 +56,9 @@ class CleanCommand extends AbstractCommand
                 'formatted' => $formatted,
                 'path' => $file->getRealPath(),
             ];
-            $options[] = $formatted;
         }
-        $filesToKeep = 30;
+        $filesToKeep = $this->container->getParameter('desarrolla2_download.database.max_local_db');
+
         $numberOfFiles = count($files);
         $output->writeln(sprintf(' - found %d databases', $numberOfFiles));
         if ($numberOfFiles <= $filesToKeep) {
