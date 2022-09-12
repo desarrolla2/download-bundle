@@ -14,6 +14,7 @@
 namespace Desarrolla2\DownloadBundle\Command;
 
 use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,6 +47,8 @@ class LoadCommand extends AbstractCommand
         $output->writeln(sprintf(' - done. %s databases deleted', $totalDeleted));
 
         $this->finalize($output);
+
+        return Command::SUCCESS;
     }
 
     /**

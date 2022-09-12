@@ -13,6 +13,7 @@
 
 namespace Desarrolla2\DownloadBundle\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -53,5 +54,7 @@ class DownloadCommand extends AbstractCommand
         $output->writeln(' - done');
 
         $this->finalize($output);
+
+        return Command::SUCCESS;
     }
 }

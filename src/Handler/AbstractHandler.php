@@ -53,7 +53,7 @@ abstract class AbstractHandler
             $timeout = $this->getDefaultTimeout();
         }
 
-        $process = new Process($cmd);
+        $process = Process::fromShellCommandline($cmd);
         $process->setTimeout($timeout);
         $process->run();
 

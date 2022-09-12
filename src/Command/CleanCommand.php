@@ -14,6 +14,7 @@
 namespace Desarrolla2\DownloadBundle\Command;
 
 use Desarrolla2\DownloadBundle\Handler\DatabaseHandler;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,7 +63,7 @@ class CleanCommand extends AbstractCommand
         $numberOfFiles = count($files);
         $output->writeln(sprintf(' - found %d databases', $numberOfFiles));
         if ($numberOfFiles <= $filesToKeep) {
-            return;
+            return Command::SUCCESS;
         }
         $output->writeln(sprintf(' - removing %d databases', $numberOfFiles - $filesToKeep));
         $filesToDelete = array_slice($files, 0, $numberOfFiles - $filesToKeep);
@@ -70,5 +71,6 @@ class CleanCommand extends AbstractCommand
             $output->writeln(sprintf(' - removing "%s"', $file['file']));
             $handler->local(sprintf('rm -rf %s', $file['path']));
         }
+        return Command::SUCCESS;
     }
 }
