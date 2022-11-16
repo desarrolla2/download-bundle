@@ -40,7 +40,7 @@ class DirectoryHandler extends AbstractHandler
             }
             $this->local(
                 sprintf(
-                    'rsync -rzd %s %s@%s:%s %s',
+                    'rsync -rzad %s %s@%s:%s %s',
                     trim($exclude),
                     $this->user,
                     $this->host,
