@@ -27,7 +27,7 @@ class CleanCommand extends AbstractCommand
         $this->setName('downloader:clean');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');
         $handler->setLogger(new ConsoleLogger($output));

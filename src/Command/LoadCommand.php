@@ -29,7 +29,7 @@ class LoadCommand extends AbstractCommand
             ->addOption('current');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$input->getOption('current')) {
             $this->selectDataBase($input, $output);
