@@ -46,23 +46,23 @@ services:
       - ['setLogger', ['@logger']]
       - ['setDefaultTimeout', ['%desarrolla2_download.timeout%']]
 
+
+  desarrolla2_download.command.abstract:
+    abstract: true
+    calls: [['setContainer', ['@service_container']]]
+
   desarrolla2_download.command.download_command:
     class: 'Desarrolla2\DownloadBundle\Command\DownloadCommand'
-    calls:
-      - ['setContainer', ['@service_container']]
-    tags:
-      - { name: 'console.command' }
+    parent: 'desarrolla2_download.command.abstract'
+    tags: [{ name: 'console.command' }]
+
 
   desarrolla2_download.command.load_command:
     class: 'Desarrolla2\DownloadBundle\Command\LoadCommand'
-    calls:
-      - ['setContainer', ['@service_container']]
-    tags:
-      - { name: 'console.command' }
+    parent: 'desarrolla2_download.command.abstract'
+    tags: [{ name: 'console.command' }]
 
   desarrolla2_download.command.clean_command:
     class: 'Desarrolla2\DownloadBundle\Command\CleanCommand'
-    calls:
-      - ['setContainer', ['@service_container']]
-    tags:
-      - { name: 'console.command' }
+    parent: 'desarrolla2_download.command.abstract'
+    tags: [{ name: 'console.command' }]

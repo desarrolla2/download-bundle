@@ -28,7 +28,7 @@ class DeleteCommand extends AbstractCommand
         $this->setName('downloader:delete:old');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var DatabaseHandler $handler */
         $handler = $this->container->get('desarrolla2_download.handler.database_handler');

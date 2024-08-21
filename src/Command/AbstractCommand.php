@@ -18,6 +18,7 @@ use Desarrolla2\DownloadBundle\Handler\DirectoryHandler;
 use Desarrolla2\DownloadBundle\Model\Directory;
 use Desarrolla2\Timer\Formatter\Human;
 use Desarrolla2\Timer\Timer;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,15 +27,21 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Finder\Finder;
 
-abstract class AbstractCommand extends Command implements ContainerAwareInterface
+abstract class AbstractCommand extends Command
 {
-    use ContainerAwareTrait;
+    /** @var ContainerInterface */
+    protected $container;
 
     /** @var Timer */
     protected $timer;
 
     /** @var OutputInterface */
     protected $output;
+
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 
     /**
      * @param array $configuration

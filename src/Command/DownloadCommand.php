@@ -28,7 +28,7 @@ class DownloadCommand extends AbstractCommand
             ->addOption('avoid-directories-download');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$input->getOption('avoid-database-download')) {
             $handler = $this->container->get('desarrolla2_download.handler.database_handler');
